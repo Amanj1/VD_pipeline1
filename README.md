@@ -16,4 +16,4 @@ TODO: In practice, automate this in some way! maybe conda?
 
 ## More information
 
-Check the docs/ folder!...
+Check the docs/ folder!
