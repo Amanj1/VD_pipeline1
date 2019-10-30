@@ -219,43 +219,6 @@ process tax_reads_kraken2{
 
 tax_reads_unmapped_kraken2.into{unmapped_reads_kraken2_blastn; unmapped_reads_kraken2_blastx}
 
-process tax_reads_unmapped_Blastn{
- tag {"${sample_id}"}
-
- publishDir "${params.publish_base_dir}/${sample_id}/reads", mode:'link'
-
- input:
- set sample_id, unmapped from unmapped_reads_kraken2_blastn
-
- output:
- set sample_id, "${sample_id}_results_unmapped_reads.blastn" into tax_unmapped_reads_blastn_results
-
- script:
- """
- sed -n '1~4s/^@/>/p;2~4p' ${unmapped} > tmp.fa
- blastn -db nt -query tmp.fa -num_threads 16 -out ${sample_id}_results_unmapped_reads.blastn
- """
-}
-
-process tax_reads_unmapped_Blastx{
- tag {"${sample_id}"}
-
- publishDir "${params.publish_base_dir}/${sample_id}/reads", mode:'link'
-
- input:
- set sample_id, unmapped from unmapped_reads_kraken2_blastx
- 
- output:
- set sample_id, "${sample_id}_results_unmapped_reads.blastx" into tax_unmapped_reads_blastx_results
-
- script:
- """
- sed -n '1~4s/^@/>/p;2~4p' ${unmapped} > tmp.fa
- blastx -db nr -query tmp.fa -num_threads 16 -out ${sample_id}_results_unmapped_reads.blastx
- """
-}
-
-
 /**
 TODO: Choose between  NCBI RefSeq or  IMG/VR database
 **/
@@ -343,7 +306,7 @@ process tax_contigs_diamond_view{
   set sample_id, assembler, 'diamond.daa' from Channel.empty()
 
   output:
-  set sample_id, assembler,"${sample_id}_${assembler}_diamond.daa" into tax_contigs_diamond_view_out
+  set sample_id, assembler,"${sample_id}_${assembler}_diamond.daa", "${sample_id}_${assembler}_diamond.tsv" into tax_contigs_diamond_view_out
 
   script:
   """
@@ -403,6 +366,7 @@ unmapped_contigs = tax_contigs_unmapped_kraken2.combine(tax_contigs_unmapped_dia
 //unmapped_contigs.into{testPrint;testInput;unmapped_contigs1;}
 /* testPrint.println() */
 
+/* This process creates data for the extended discovery pipeline (discoveryExtended) */
 process tax_contigs_unmapped_merged{
   tag {"${sample_id}_${assembler}"}
 
@@ -419,59 +383,92 @@ process tax_contigs_unmapped_merged{
    """
   #!/bin/bash
   cat ${un_kraken2} ${un_diamond} > tmp.fa 
-  awk '/^>/{f=!d[\$1];d[\$1]=1}f' tmp.fa > ${sample_id}_${assembler}_unmapped_contigs.fa
+  #This previous awk script was combining fasta reads from kraken2 and diamond and filtering duplicated reads
+  #awk '/^>/{f=!d[\$1];d[\$1]=1}f' tmp.fa > ${sample_id}_${assembler}_unmapped_contigs.fa
+  
+  # New version of the script makes multiline fasta code into one line fasta code and keeps the fasta reads that exist in both kraken2 and diamond
+  awk '/^>/ {printf("\n%s\n",\$0);next; } { printf("%s",\$0);}  END {printf("\n");}' < tmp.fa > tmp1.fa
+  rm tmp.fa
+  awk 'seen[\$0]++ &&seen[\$0] > N' tmp1.fa > ${sample_id}_${assembler}_unmapped_contigs.fa
+  rm tmp1.fa
   """
 }
 
-tax_contigs_merged_unmapped.into{unmapped_contigs_blastn; unmapped_contigs_blastx}
 
-process tax_contigs_unmapped_Blastn{
+process tax_contigs_diamond_fetch_organism_names{
   tag {"${sample_id}_${assembler}"}
 
   publishDir "${params.publish_base_dir}/${sample_id}/${assembler}", mode:'link'
 
   input:
-  set sample_id, assembler, unmapped from unmapped_contigs_blastn 
-  
+  set sample_id, assembler, diamond_tsv from tax_contigs_diamond_out
+ 
   output:
-  set sample_id, assembler, "${sample_id}_{assembler}_results_unmapped_contigs.blastn" into tax_unmapped_contigs_blastn_results
-  file "${sample_id}_${assembler}_results_unmapped_contigs.blastn" into blastn_nt_out_contigs
-  
+  set sample_id, assembler, "${sample_id}_${assembler}_contigs_diamond_organism_names.tsv", "${sample_id}_${assembler}_acc_nr_exist_for_esearch.txt" into tax_contigs_diamond_organism
+
   script:
-""" 
-  blastn -db nt -query ${unmapped} -num_threads 16 -out ${sample_id}_${assembler}_results_unmapped_contigs.blastn
-"""
+   """
+	fetch_organism_using_accession_number.sh $diamond_tsv $sample_id $assembler
+  """
 }
 
-process tax_contigs_unmapped_Blastx{
+process tax_contigs_diamond_fetch_taxonomic_info{
   tag {"${sample_id}_${assembler}"}
 
   publishDir "${params.publish_base_dir}/${sample_id}/${assembler}", mode:'link'
 
   input:
-  set sample_id, assembler, unmapped from unmapped_contigs_blastx
-
+  set sample_id, assembler, diamond_organism, esearch_data from tax_contigs_diamond_organism
+ 
   output:
-  set sample_id, assembler, "${sample_id}_{assembler}_results_unmapped_contigs.blastx" into tax_unmapped_contigs_blastx_results
-  file "${sample_id}_${assembler}_results_unmapped_contigs.blastx" into blastx_nr_out_contigs
+  set sample_id, assembler, "${sample_id}_${assembler}_contigs_diamond_taxonomic_info.tsv", "${sample_id}_${assembler}_contigs_diamond_organism_names_full_list.tsv" into tax_contigs_diamond_taxonomic_info
+  file "${sample_id}_${assembler}_contigs_diamond_taxonomic_info_all_entries.txt" into tax_contigs_diamond_taxonomic_info_out
 
   script:
-"""
-  blastx -db nr -query ${unmapped} -num_threads 16 -out ${sample_id}_${assembler}_results_unmapped_contigs.blastx
-"""
+   """
+   #!/bin/bash
+   API_KEY="6291fdf3ba4498fa376349c69e2ddbdc6b09"
+   
+   sed 1d $esearch_data > edata.txt
+   touch list.tsv
+   for line in \$(cat edata.txt)
+   do
+		esearch  -db protein -query \$line -api_key=\$API_KEY|esummary > temp.txt
+		title=\$(cat temp.txt | grep Title| awk -F '</Title>' '{print \$1}' | awk -F '<Title>' '{print \$2}')
+		organism=\$(cat temp.txt | grep Organism| awk -F '</Organism>' '{print \$1}'|awk -F '<Organism>' '{print \$2}')
+		organism=\${organism// /_}
+		title=\${title// /_}
+		echo \$line    \$title  \$organism >> list.tsv
+		sleep 1s   
+   done
+   cat list.tsv >> $diamond_organism
+   cat $diamond_organism > "${sample_id}_${assembler}_contigs_diamond_organism_names_full_list.tsv"
+   
+   n=0
+   echo "Organism	Division	Rank" > tmp_tax.tsv
+   sed 1d $diamond_organism|cut -f 3|awk '!seen[\$0]++' > orgNames.txt
+   echo "backup_taxonomy_data" > backup_tax_data.txt
+   for line in \$(< orgNames.txt)
+   do
+		organism=\$line
+		if [ "\$n" == "3" ]; then
+			n=0
+			sleep 1s
+		fi
+		organism=\${organism//_/ }
+		#This is a modified version of get_species_taxids.sh from the blast package. In each e-utility search I added a NCBI API_KEY to increase number of requests
+		get_species_taxids_modified_ApiKey.sh -n "\$organism" > temp_tax.txt
+		cat temp_tax.txt >> backup_tax_data.txt
+		div=\$(cat temp_tax.txt|grep 'division:' |awk -F 'division:' '{print \$2}')
+		rank=\$(cat temp_tax.txt|grep 'rank:' |awk -F 'rank:' '{print \$2}')
+		div=\${div// /_}
+		organism=\${organism// /_}
+		echo \$organism	\$div	\$rank >> tmp_tax.tsv
+		n=\$((n+1))
+	done
+	tr ' ' '\t' <tmp_tax.tsv >"${sample_id}_${assembler}_contigs_diamond_taxonomic_info.tsv"
+	mv backup_tax_data.txt "${sample_id}_${assembler}_contigs_diamond_taxonomic_info_all_entries.txt"
+	rm tmp_tax.tsv temp_tax.txt
+  """
 }
 
-/*
-process tax_orfs_hmmscan{
-  input:
-  set sample_id,contigs_id from dummy_in
-  each pfam from pfams
-
-  script:
-  """
-  hmmscan --cpu ${task.cpus} $(hmmscan_opts) -o $@ $| $<
-  """
-}
-*/
-
-//process tax_contigs_virsorter{}
