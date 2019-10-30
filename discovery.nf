@@ -427,7 +427,7 @@ process tax_contigs_diamond_fetch_taxonomic_info{
   script:
    """
    #!/bin/bash
-   API_KEY="6291fdf3ba4498fa376349c69e2ddbdc6b09"
+   API_KEY="YOUR API KEY FROM NCBI ACCOUNT"
    
    sed 1d $esearch_data > edata.txt
    touch list.tsv
