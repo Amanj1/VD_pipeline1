@@ -404,8 +404,8 @@ process tax_contigs_diamond_fetch_organism_names{
   set sample_id, assembler, diamond_tsv from tax_contigs_diamond_out
  
   output:
-  set sample_id, assembler, "${sample_id}_${assembler}_contigs_diamond_organism_names.tsv", "${sample_id}_${assembler}_acc_nr_exist_for_esearch.txt" into tax_contigs_diamond_organism
-
+  set sample_id, assembler, "${sample_id}_${assembler}_contigs_diamond_organism_names.tsv", "${sample_id}_${assembler}_diamond_acc_nr_exist_for_esearch.txt" into tax_contigs_diamond_organism
+  file "${sample_id}_${assembler}_diamond_acc_nr_not_found.txt" into tax_contigs_diamond_organism_out
   script:
    """
 	fetch_organism_using_accession_number.sh $diamond_tsv $sample_id $assembler
@@ -427,7 +427,7 @@ process tax_contigs_diamond_fetch_taxonomic_info{
   script:
    """
    #!/bin/bash
-   API_KEY="YOUR API KEY FROM NCBI ACCOUNT"
+   API_KEY="6291fdf3ba4498fa376349c69e2ddbdc6b09"
    
    sed 1d $esearch_data > edata.txt
    touch list.tsv
