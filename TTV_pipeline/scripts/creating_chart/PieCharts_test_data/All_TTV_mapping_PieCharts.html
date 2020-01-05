@@ -1,0 +1,243 @@
+
+        <!DOCTYPE html>
+        <html lang="en-US">
+        <body>
+
+        <h1>Pie Chart BWA All Samples Reads</h1>
+        <div id="piechart1"></div>
+        <div id="piechart2"></div>
+        <div id="piechart3"></div>
+
+        <h1>Pie Chart Magicblast All Samples Reads</h1>
+        <div id="piechart4"></div>
+        <div id="piechart5"></div>
+        <div id="piechart6"></div>
+
+        <h1>Pie Chart Magicblast All Samples Contigs</h1>
+        <div id="piechart7"></div>
+        <div id="piechart8"></div>
+        <div id="piechart9"></div>
+
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+        <script type="text/javascript">
+        // Load google charts
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart1);  //Reads tot
+        google.charts.setOnLoadCallback(drawChart2);  //Reads all
+        google.charts.setOnLoadCallback(drawChart3);  //Reads comb
+        google.charts.setOnLoadCallback(drawChart4);  //Reads all
+        google.charts.setOnLoadCallback(drawChart5);  //Reads comb
+        google.charts.setOnLoadCallback(drawChart6);  //Contigs all
+        google.charts.setOnLoadCallback(drawChart7);  //Contigs comb
+        google.charts.setOnLoadCallback(drawChart8);  //Contigs comb
+        google.charts.setOnLoadCallback(drawChart9);  //Contigs comb
+        
+        function drawChart1() {
+        var data1 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['TTV',5927],
+['Other Sequences',14977],
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options1 = {'title':'Total TTV hits from all samples (BWA reads)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart1 = new google.visualization.PieChart(document.getElementById('piechart1'));
+        chart1.draw(data1, options1);
+        }
+        
+        function drawChart2() {
+        var data2 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['Torque_teno_virus_1_ORF2,_ORF1_genes,_complete_cds', 57],
+['Torque_teno_virus_16_DNA,_complete_genome,_isolate:_TUS01', 214],
+['Torque_teno_virus_19_DNA,_complete_genome,_isolate:_TTV_SANBAN', 32],
+['Torque_teno_virus_15_DNA,_complete_genome,_isolate:_TJN01', 101],
+['Torque_teno_virus_14_DNA,_complete_genome,_isolate:_s-TTV_CH65-1', 1],
+['Torque_teno_virus_29_ORF2,_ORF1,_ORF3_genes,_complete_cds,_isolate:_TTVyon-KC009', 25],
+['Torque_teno_virus_4_DNA,_complete_genome,_isolate:_Pt-TTV6', 149],
+['Torque_teno_virus_23_ORF2,_ORF1_genes,_complete_cds,_isolate:_s-TTV_CH65-2', 7],
+['Torque_teno_virus_2_ORF2,_ORF1_genes,_complete_cds,_isolate:_s-TTV_CH71', 2],
+['Torque_teno_virus_8_DNA,_complete_genome,_genotype_22', 95],
+['Torque_teno_virus_20_ORF4,_ORF3,_ORF2,_ORF1_genes,_complete_cds,_clone:_SAa-10', 11],
+['Torque_teno_virus_24_ORF4,_ORF3,_ORF2,_ORF1_genes,_complete_cds,_clone:_SAa-01', 403],
+['Torque_teno_virus_27_DNA,_complete_genome,_isolate:_CT23F', 15],
+['Torque_teno_virus_28_DNA,_complete_genome,_isolate:_CT43F', 12],
+['Torque_teno_virus_12_DNA,_complete_genome,_isolate:_CT44F', 75],
+['Torque_teno_virus_10_DNA,_complete_genome,_isolate:_JT34F', 186],
+['Torque_teno_virus_7_isolate_PMV,_complete_genome', 5],
+['Torque_teno_virus_5_isolate_TCHN-C1_Orf2_and_Orf1_genes,_complete_cds', 112],
+['Torque_teno_virus_11_isolate_TCHN-D1_Orf2_and_Orf1_genes,_complete_cds', 15],
+['Torque_teno_virus_13_isolate_TCHN-A_Orf2_and_Orf1_genes,_complete_cds', 141],
+['Torque_teno_virus_21_isolate_TCHN-B_ORF2_and_ORF1_genes,_complete_cds', 6],
+['Torque_teno_virus_6_isolate_KAV,_complete_genome', 44],
+['Torque_teno_virus_18,_Sequence_75_from_Patent_WO0028039', 2578],
+['Torque_teno_virus_17,_Sequence_187_from_Patent_WO0028039', 23],
+['Torque_teno_virus_22,_Sequence_1_from_Patent_WO0142299', 1177],
+['Torque_teno_virus_3_strain_HEL32,_complete_genome', 438],
+['Torque_teno_virus_9_clone_BM1C-18_ORF2_(ORF2)_gene,_complete_cds;_and_nonfunctional_ORF1_(ORF1)_gene,_complete_sequence', 3],
+
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options2 = {'title':'TTV reference occurrences (BWA reads)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart2 = new google.visualization.PieChart(document.getElementById('piechart2'));
+        chart2.draw(data2, options2);
+        }
+        
+        function drawChart3() {
+        var data3 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['P12752_1042', 20],
+['P12752_1030', 5907],
+
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options3 = {'title':'TTV reference occurrences (BWA reads)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart3 = new google.visualization.PieChart(document.getElementById('piechart3'));
+        chart3.draw(data3, options3);
+        }
+        
+        function drawChart4() {
+        var data4 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['TTV',5990],
+['Other Sequences',14914],
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options4 = {'title':'Total TTV hits from all samples (Magicblast reads)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart4 = new google.visualization.PieChart(document.getElementById('piechart4'));
+        chart4.draw(data4, options4);
+        }
+        
+        function drawChart5() {
+        var data5 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['Torque_teno_virus_1_ORF2,_ORF1_genes,_complete_cds', 151],
+['Torque_teno_virus_16_DNA,_complete_genome,_isolate:_TUS01', 193],
+['Torque_teno_virus_19_DNA,_complete_genome,_isolate:_TTV_SANBAN', 35],
+['Torque_teno_virus_15_DNA,_complete_genome,_isolate:_TJN01', 105],
+['Torque_teno_virus_14_DNA,_complete_genome,_isolate:_s-TTV_CH65-1', 5],
+['Torque_teno_virus_29_ORF2,_ORF1,_ORF3_genes,_complete_cds,_isolate:_TTVyon-KC009', 26],
+['Torque_teno_virus_4_DNA,_complete_genome,_isolate:_Pt-TTV6', 116],
+['Torque_teno_virus_23_ORF2,_ORF1_genes,_complete_cds,_isolate:_s-TTV_CH65-2', 10],
+['Torque_teno_virus_8_DNA,_complete_genome,_genotype_22', 100],
+['Torque_teno_virus_20_ORF4,_ORF3,_ORF2,_ORF1_genes,_complete_cds,_clone:_SAa-10', 8],
+['Torque_teno_virus_24_ORF4,_ORF3,_ORF2,_ORF1_genes,_complete_cds,_clone:_SAa-01', 411],
+['Torque_teno_virus_27_DNA,_complete_genome,_isolate:_CT23F', 21],
+['Torque_teno_virus_28_DNA,_complete_genome,_isolate:_CT43F', 9],
+['Torque_teno_virus_12_DNA,_complete_genome,_isolate:_CT44F', 62],
+['Torque_teno_virus_10_DNA,_complete_genome,_isolate:_JT34F', 207],
+['Torque_teno_virus_7_isolate_PMV,_complete_genome', 3],
+['Torque_teno_virus_5_isolate_TCHN-C1_Orf2_and_Orf1_genes,_complete_cds', 104],
+['Torque_teno_virus_11_isolate_TCHN-D1_Orf2_and_Orf1_genes,_complete_cds', 16],
+['Torque_teno_virus_13_isolate_TCHN-A_Orf2_and_Orf1_genes,_complete_cds', 172],
+['Torque_teno_virus_21_isolate_TCHN-B_ORF2_and_ORF1_genes,_complete_cds', 9],
+['Torque_teno_virus_6_isolate_KAV,_complete_genome', 30],
+['Torque_teno_virus_18,_Sequence_75_from_Patent_WO0028039', 2548],
+['Torque_teno_virus_17,_Sequence_187_from_Patent_WO0028039', 27],
+['Torque_teno_virus_22,_Sequence_1_from_Patent_WO0142299', 1173],
+['Torque_teno_virus_3_strain_HEL32,_complete_genome', 445],
+['Torque_teno_virus_9_clone_BM1C-18_ORF2_(ORF2)_gene,_complete_cds;_and_nonfunctional_ORF1_(ORF1)_gene,_complete_sequence', 2],
+
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options5 = {'title':'TTV reference occurrences (Magicblast reads)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart5 = new google.visualization.PieChart(document.getElementById('piechart5'));
+        chart5.draw(data5, options5);
+        }
+        
+        function drawChart6() {
+        var data6 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['P12752_1042', 20],
+['P12752_1030', 5970],
+
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options6 = {'title':'TTV reference occurrences (Magicblast reads)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart6 = new google.visualization.PieChart(document.getElementById('piechart6'));
+        chart6.draw(data6, options6);
+        }
+        
+        function drawChart7() {
+        var data7 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['TTV',55],
+['Other Sequences',230],
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options7 = {'title':'Total TTV hits from all samples (Magicblast contigs)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart7 = new google.visualization.PieChart(document.getElementById('piechart7'));
+        chart7.draw(data7, options7);
+        }
+        
+        function drawChart8() {
+        var data8 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['Torque_teno_virus_19_DNA,_complete_genome,_isolate:_TTV_SANBAN', 2],
+['Torque_teno_virus_14_DNA,_complete_genome,_isolate:_s-TTV_CH65-1', 1],
+['Torque_teno_virus_29_ORF2,_ORF1,_ORF3_genes,_complete_cds,_isolate:_TTVyon-KC009', 2],
+['Torque_teno_virus_8_DNA,_complete_genome,_genotype_22', 3],
+['Torque_teno_virus_24_ORF4,_ORF3,_ORF2,_ORF1_genes,_complete_cds,_clone:_SAa-01', 5],
+['Torque_teno_virus_12_DNA,_complete_genome,_isolate:_CT44F', 1],
+['Torque_teno_virus_10_DNA,_complete_genome,_isolate:_JT34F', 5],
+['Torque_teno_virus_5_isolate_TCHN-C1_Orf2_and_Orf1_genes,_complete_cds', 1],
+['Torque_teno_virus_11_isolate_TCHN-D1_Orf2_and_Orf1_genes,_complete_cds', 2],
+['Torque_teno_virus_13_isolate_TCHN-A_Orf2_and_Orf1_genes,_complete_cds', 6],
+['Torque_teno_virus_21_isolate_TCHN-B_ORF2_and_ORF1_genes,_complete_cds', 2],
+['Torque_teno_virus_6_isolate_KAV,_complete_genome', 1],
+['Torque_teno_virus_18,_Sequence_75_from_Patent_WO0028039', 13],
+['Torque_teno_virus_17,_Sequence_187_from_Patent_WO0028039', 1],
+['Torque_teno_virus_22,_Sequence_1_from_Patent_WO0142299', 6],
+['Torque_teno_virus_3_strain_HEL32,_complete_genome', 2],
+
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options8 = {'title':'TTV reference occurrences (Magicblast contigs)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart8 = new google.visualization.PieChart(document.getElementById('piechart8'));
+        chart8.draw(data8, options8);
+        }
+        
+        function drawChart9() {
+        var data9 = google.visualization.arrayToDataTable([
+        ['Sequence', 'Matches'],
+        ['P12752_1042', 3],
+['P12752_1030', 52],
+
+        ]);
+        
+        // Optional; add a title and set the width and height of the chart
+        var options9 = {'title':'TTV reference occurrences (Magicblast contigs)', 'width':1050, 'height':900};
+
+        // Display the chart inside the <div> element with id="piechart"
+        var chart9 = new google.visualization.PieChart(document.getElementById('piechart9'));
+        chart9.draw(data9, options9);
+        }
+        
+        </script>
+        </body>
+        </html>
+         
