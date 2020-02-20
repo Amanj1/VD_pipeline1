@@ -9,7 +9,7 @@ params.fastq_dir='preprocessing'
 params.contigs_dir='preprocessing'
 
 reads_files = Channel.fromFilePairs("${params.fastq_dir}/**/*_{1,2,unpaired}.fq.gz",size:3)
-contigs_files = Channel.fromFilePairs("${params.contigs_dir}/**/*_final_contigs.fa",size:1)
+contigs_files = Channel.fromFilePairs("${params.contigs_dir}/**/*_filt_contigs.fa",size:1)
 
 reads_files.into{
  r_counter_in;
@@ -60,8 +60,7 @@ process contig_magicblast{
 
   script:
   """
-  blastn -db TTV -query ${contig_file[0]} -num_threads ${task.cpus} -outfmt 6 > ${sample_id}_mapped_results_contigs.blastn
-  magicblast -db TTV -query ${contig_file[0]} -outfmt tabular -no_unaligned -num_threads ${task.cpus} > ${sample_id}_mapped_results_contigs.magicblast
+  magicblast -db picornavirus_lineage -query ${contig_file[0]} -outfmt tabular -no_unaligned -num_threads ${task.cpus} -splice false -score 125 > ${sample_id}_mapped_results_contigs.magicblast
   """
 }
 
@@ -133,7 +132,7 @@ process contig_magicblast_final_sampleResults{
   while read -r line; do
         ref_id=\$(echo \$line |awk '{print \$1}')
         ref_occur=\$(echo \$line |awk '{print \$2}')
-		ref_name=\$(blastdbcmd -entry \$ref_id -db TTV -range 1-1 | tr -d '\n' | sed 's/.\$//')
+		ref_name=\$(blastdbcmd -entry \$ref_id -db picornavirus_lineage -range 1-1 | tr -d '\n' | sed 's/.\$//')
 		ref_name=\${ref_name// /_}
 		ref_name=\${ref_name//>/}
 		ref_name=\${ref_name//:1-1_/}
@@ -289,7 +288,7 @@ process reads_magicblast{
   """
   zcat reads_1.fq.gz > seq1.fq
   zcat reads_2.fq.gz > seq2.fq
-  magicblast -db TTV -query seq1.fq -query_mate seq2.fq -infmt fastq -outfmt tabular -no_unaligned -num_threads ${task.cpus} > ${sample_id}_mapped_result_reads.magicblast
+  magicblast -db picornavirus_lineage -query seq1.fq -query_mate seq2.fq -infmt fastq -outfmt tabular -no_unaligned -num_threads ${task.cpus} -splice false -score 35 > ${sample_id}_mapped_result_reads.magicblast
   rm seq1.fq seq2.fq
 
   """
@@ -363,7 +362,7 @@ process reads_magicblast_final_sampleResults{
   while read -r line; do
         ref_id=\$(echo \$line |awk '{print \$1}')
         ref_occur=\$(echo \$line |awk '{print \$2}')
-		ref_name=\$(blastdbcmd -entry \$ref_id -db TTV -range 1-1 | tr -d '\n' | sed 's/.\$//')
+		ref_name=\$(blastdbcmd -entry \$ref_id -db picornavirus_lineage -range 1-1 | tr -d '\n' | sed 's/.\$//')
 		ref_name=\${ref_name// /_}
 		ref_name=\${ref_name//>/}
 		ref_name=\${ref_name//:1-1_/}
@@ -489,13 +488,12 @@ process reads_bwa{
 
   output:
   set sample_id, "${sample_id}_reads_bwaSamToBed.txt" into r_bwaBed_out
-  set "${sample_id}_reads_bwa_aln-pe.sam" into r_bwaBed_sam_out
 
   script:
   """
   zcat reads_1.fq.gz > seq1.fq
   zcat reads_2.fq.gz > seq2.fq
-  bwa mem -t ${task.cpus} ${params.bwa_idx}/TTV_1to29_ref_data.fa seq1.fq seq2.fq > ${sample_id}_reads_bwa_aln-pe.sam
+  bwa mem -t ${task.cpus} ${params.bwa_idx}/picornavirus_subtree_lineage_sequences.fasta seq1.fq seq2.fq > ${sample_id}_reads_bwa_aln-pe.sam
   bedtools bamtobed -i ${sample_id}_reads_bwa_aln-pe.sam > ${sample_id}_reads_bwaSamToBed.txt
   gzip ${sample_id}_reads_bwa_aln-pe.sam
   """
@@ -519,7 +517,7 @@ process reads_bwa_counter{
 
   script:
   """
-    cat ${bwaSamToBed} | awk '{print \$4}' | sed 's/.\$//' | awk '!seen[\$0]++' | wc -l > ${sample_id}_nr_of_seq_reads_bwaBed.txt
+    cat ${bwaSamToBed} | awk '{print \$4 "\t" \$5}' | awk '(\$2 > 24)' | awk '{print \$1}' | sed 's/.\$//' | awk '!seen[\$0]++' | wc -l > ${sample_id}_nr_of_seq_reads_bwaBed.txt
   """
 }
 
@@ -536,8 +534,8 @@ process reads_bwa_selection{
 
   script:
   """
-    awk '{print \$1 "\t" \$5 "\t" \$4}' ${bwaSamToBed} | sed 's/.\$//' | awk '!seen[\$0]++' | datamash -W -g 3 max 2 -f | awk '{print \$1 "\t" \$3 "\t" \$4}' > ${sample_id}_selected_reads_bwaBed.txt
-    awk '{print \$1 "\t" \$5 "\t" \$4}' ${bwaSamToBed} | sed 's/.\$//' | awk '!seen[\$0]++' | datamash -W -g 3 max 2 -f | awk '{print \$1 "\t" \$3 "\t" \$4}' | datamash -sg 1 count 1 > ${sample_id}_occurrences_of_matched_ref_bwaBed.txt
+    awk '{print \$1 "\t" \$5 "\t" \$4}' ${bwaSamToBed} | sed 's/.\$//' | awk '!seen[\$0]++' | datamash -W -g 3 max 2 -f | awk '{print \$1 "\t" \$3 "\t" \$4}' | awk '(\$3 > 24)' > ${sample_id}_selected_reads_bwaBed.txt
+    awk '{print \$1 "\t" \$5 "\t" \$4}' ${bwaSamToBed} | sed 's/.\$//' | awk '!seen[\$0]++' | datamash -W -g 3 max 2 -f | awk '{print \$1 "\t" \$3 "\t" \$4}' | awk '(\$3 > 24)' | datamash -sg 1 count 1 > ${sample_id}_occurrences_of_matched_ref_bwaBed.txt
   """
 }
 
@@ -569,7 +567,7 @@ process reads_bwa_final_sampleResults{
   while read -r line; do
         ref_id=\$(echo \$line |awk '{print \$1}')
         ref_occur=\$(echo \$line |awk '{print \$2}')
-		ref_name=\$(blastdbcmd -entry \$ref_id -db TTV -range 1-1 | tr -d '\n' | sed 's/.\$//')
+		ref_name=\$(blastdbcmd -entry \$ref_id -db picornavirus_lineage -range 1-1 | tr -d '\n' | sed 's/.\$//')
 		ref_name=\${ref_name// /_}
 		ref_name=\${ref_name//>/}
 		ref_name=\${ref_name//:1-1_/}
